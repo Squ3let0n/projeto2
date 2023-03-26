@@ -1,0 +1,484 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_ALUNOS 100
+
+struct Aluno {
+  int matricula;
+  float notas[4];
+  char nome[50];
+  int turma;
+  int faltas;
+};
+
+struct Aluno alunos[MAX_ALUNOS];
+int num_alunos = 0;
+int numAlunos_test = 1;
+struct Aluno aluno;
+
+void cadastrar_aluno(void) {
+  int matricula, i;
+  int existe = 0;
+
+  if (num_alunos >= MAX_ALUNOS) {
+    printf("Erro: nao e possivel cadastrar mais alunos.\n");
+    return;
+  }
+
+  printf("Digite a matricula do aluno: ");
+  scanf("%d", &matricula);
+  if (matricula > 0) {
+    for (i = 0; i < num_alunos; i++) {
+      if (alunos[i].matricula == matricula) {
+        printf("Erro: a matricula ja foi cadastrada.\n");
+        existe = 1;
+        break;
+      }
+    }
+
+    if (existe == 0) {
+      alunos[num_alunos].matricula = matricula;
+      num_alunos++;
+      printf("Aluno cadastrado com sucesso.\n");
+    }
+  } else {
+    printf("Não é possível adicionar valores negativos!");
+  }
+}
+
+void remover_aluno(void) {
+  if (num_alunos == 0) {
+    printf("Nao existem alunos cadastrados.\n");
+    return;
+  }
+
+  int matricula;
+  printf("Digite a matricula do aluno a ser removido: ");
+  scanf("%d", &matricula);
+
+  int i;
+  for (i = 0; i < num_alunos; i++) {
+    if (alunos[i].matricula == matricula) {
+      printf("Aluno %s removido com sucesso.\n", alunos[i].nome);
+      num_alunos--;
+      for (; i < num_alunos; i++) {
+        alunos[i] = alunos[i + 1];
+      }
+      return;
+    }
+  }
+  printf("Matricula nao encontrada.\n");
+}
+
+void atualizar_aluno(void) {
+  if (num_alunos == 0) {
+    printf("Não existem alunos cadastrados\n");
+  } else {
+    int i, j, matricula;
+    printf("Informe a matricula do aluno: ");
+    scanf("%d", &matricula);
+
+    for (i = 0; i < num_alunos; i++) {
+      if (alunos[i].matricula == matricula) {
+        printf("Aluno encontrado!\nAtualize as informações:\n");
+        printf("Digite o nome do aluno: ");
+        scanf(" %[^\n]s", alunos[i].nome);
+        printf("Digite a turma do aluno: ");
+        scanf("%d", &alunos[i].turma);
+        printf("Digite a quantidade de faltas do aluno: ");
+        scanf("%d", &alunos[i].faltas);
+        for (j = 0; j < 4; j++) {
+          printf("Informe a nota %d do aluno: ", j + 1);
+          scanf("%f", &alunos[i].notas[j]);
+          if (alunos[i].notas[j] > 10) {
+            system("clear");
+            printf("ERRO: Alguma das notas tem valor maior que 10!. Reveja por "
+                   "favor!");
+            return;
+          }
+        }
+        printf("Aluno atualizado com sucesso.\n");
+        return;
+      }
+    }
+    printf("Matricula nao encontrada.\n");
+  }
+}
+
+void listar_alunos(void) {
+  if (num_alunos == 0) {
+    printf("Nao existem alunos cadastrados.\n");
+  } else {
+    printf("Lista de Alunos:\n");
+    for (int i = 0; i < num_alunos; i++) {
+      printf("Matricula: %d\n", alunos[i].matricula);
+      printf("Nome: %s\n", alunos[i].nome);
+      printf("Turma: %d\n", alunos[i].turma);
+      printf("Notas: %.1f %.1f %.1f %.1f\n", alunos[i].notas[0],
+             alunos[i].notas[1], alunos[i].notas[2], alunos[i].notas[3]);
+      printf("Faltas: %d\n\n", alunos[i].faltas);
+    }
+  }
+}
+
+void listar_aprovados(void) {
+  int contadorAprovados = 0;
+  if (num_alunos == 0) {
+    printf("Nao existem alunos cadastrados.\n");
+  } else {
+    printf("Lista de Alunos Aprovados:\n");
+    for (int i = 0; i < num_alunos; i++) {
+      float media = 0;
+      for (int j = 0; j < 4; j++) {
+        media += alunos[i].notas[j];
+      }
+      media /= 4;
+      if (media >= 7 && alunos[i].faltas <= 22) {
+        printf("Matricula: %d\n", alunos[i].matricula);
+        printf("Nome: %s\n", alunos[i].nome);
+        printf("Turma: %d\n", alunos[i].turma);
+        printf("Notas: %.1f %.1f %.1f %.1f\n", alunos[i].notas[0],
+               alunos[i].notas[1], alunos[i].notas[2], alunos[i].notas[3]);
+        printf("Faltas: %d\n", alunos[i].faltas);
+        printf("Media: %.1f (APROVADO)\n\n", media);
+        contadorAprovados++;
+      }
+    }
+  }
+  if (contadorAprovados == 0) {
+    printf("Nenhum aluno foi aprovado");
+  }
+}
+
+void listar_reprovados_media(void) {
+  int contadorReprovados = 0;
+  if (num_alunos == 0) {
+    printf("Nao existem alunos cadastrados.\n");
+  } else {
+    printf("Lista de Alunos Reprovados por Media:\n");
+    for (int i = 0; i < num_alunos; i++) {
+      float media = 0;
+      for (int j = 0; j < 4; j++) {
+        media += alunos[i].notas[j];
+      }
+      media /= 4;
+      if (media < 5) {
+        printf("Matricula: %d\n", alunos[i].matricula);
+        printf("Nome: %s\n", alunos[i].nome);
+        printf("Turma: %d\n", alunos[i].turma);
+        printf("Notas: %.1f %.1f %.1f %.1f\n", alunos[i].notas[0],
+               alunos[i].notas[1], alunos[i].notas[2], alunos[i].notas[3]);
+        printf("Media: %.1f\n", media);
+        printf("Faltas: %d\n\n", alunos[i].faltas);
+        contadorReprovados++;
+      }
+    }
+    if (contadorReprovados == 0) {
+      printf("Nao ha alunos reprovados por media.\n");
+    }
+  }
+}
+
+void listar_reprovados_faltas(void) {
+  int contadorReprovados = 0;
+  if (num_alunos == 0) {
+    printf("Nao existem alunos cadastrados.\n");
+  } else {
+    printf("Lista de Alunos Reprovados por Falta:\n");
+    for (int i = 0; i < num_alunos; i++) {
+      if (alunos[i].faltas >= 23) {
+        printf("Matricula: %d\n", alunos[i].matricula);
+        printf("Nome: %s\n", alunos[i].nome);
+        printf("Turma: %d\n", alunos[i].turma);
+        printf("Notas: %.1f %.1f %.1f %.1f\n", alunos[i].notas[0],
+               alunos[i].notas[1], alunos[i].notas[2], alunos[i].notas[3]);
+        printf("Faltas: %d\n\n", alunos[i].faltas);
+        contadorReprovados++;
+      }
+    }
+    if (contadorReprovados == 0) {
+      printf("Nao ha alunos reprovados por falta.\n");
+    }
+  }
+}
+
+void listar_por_turma(void) {
+  int turma;
+  int encontrou_aluno = 0;
+
+  printf("Digite a turma a ser listada: ");
+  scanf("%d", &turma);
+
+  printf("Lista de Alunos da Turma %d:\n", turma);
+  for (int i = 0; i < num_alunos; i++) {
+    if (alunos[i].turma == turma) {
+      encontrou_aluno = 1;
+      printf("Matricula: %d\n", alunos[i].matricula);
+      printf("Nome: %s\n", alunos[i].nome);
+      printf("Turma: %d\n", alunos[i].turma);
+      printf("Notas: %.1f %.1f %.1f %.1f\n", alunos[i].notas[0],
+             alunos[i].notas[1], alunos[i].notas[2], alunos[i].notas[3]);
+      printf("Faltas: %d\n\n", alunos[i].faltas);
+    }
+  }
+
+  if (!encontrou_aluno) {
+    printf("Nao foram encontrados alunos na turma %d.\n", turma);
+  }
+}
+
+void ordenar_por_matricula(void) {
+  int i, j;
+  struct Aluno temp;
+
+  if (num_alunos == 0) {
+    printf("Nao existem alunos cadastrados.\n");
+    return;
+  }
+
+  for (i = 0; i < num_alunos - 1; i++) {
+    for (j = 0; j < num_alunos - i - 1; j++) {
+      if (alunos[j].matricula > alunos[j + 1].matricula) {
+        temp = alunos[j];
+        alunos[j] = alunos[j + 1];
+        alunos[j + 1] = temp;
+      }
+    }
+  }
+
+  printf("Lista de Alunos Ordenada por Matricula:\n");
+  for (i = 0; i < num_alunos; i++) {
+    printf("Matricula: %d\n", alunos[i].matricula);
+    printf("Nome: %s\n", alunos[i].nome);
+    printf("Turma: %d\n", alunos[i].turma);
+    printf("Notas: %.1f %.1f %.1f %.1f\n", alunos[i].notas[0],
+           alunos[i].notas[1], alunos[i].notas[2], alunos[i].notas[3]);
+    printf("Faltas: %d\n\n", alunos[i].faltas);
+  }
+}
+//----------------------------FUNÇÃO PARA COMPARAR
+// ALUNOS-------------------------------//
+int comparar_nomes(const void *a, const void *b) {
+  struct Aluno *aluno1 = (struct Aluno *)a;
+  struct Aluno *aluno2 = (struct Aluno *)b;
+  return strcmp(aluno1->nome, aluno2->nome);
+}
+
+void ordenar_por_nome(void) {
+  if (num_alunos == 0) {
+    printf("Nao existem alunos cadastrados.\n");
+  } else {
+    qsort(alunos, num_alunos, sizeof(struct Aluno), comparar_nomes);
+    printf("Alunos ordenados por nome.\n");
+  }
+}
+
+void ordenar_por_media(void) {
+  if (num_alunos == 0) {
+    printf("Nao existem alunos cadastrados.\n");
+    return;
+  }
+
+  int i, j, pos_menor;
+  struct Aluno temp;
+
+  for (i = 0; i < num_alunos - 1; i++) {
+    pos_menor = i;
+
+    for (j = i + 1; j < num_alunos; j++) {
+      float media_i = 0, media_j = 0;
+
+      for (int k = 0; k < 4; k++) {
+        media_i += alunos[pos_menor].notas[k];
+        media_j += alunos[j].notas[k];
+      }
+
+      media_i /= 4;
+      media_j /= 4;
+
+      if (media_j < media_i) {
+        pos_menor = j;
+      }
+    }
+
+    if (pos_menor != i) {
+      temp = alunos[i];
+      alunos[i] = alunos[pos_menor];
+      alunos[pos_menor] = temp;
+    }
+  }
+
+  printf("Alunos ordenados por media com sucesso.\n");
+}
+
+void ordenar_por_faltas(void) {
+  if (num_alunos == 0) {
+    printf("Nao existem alunos cadastrados.\n");
+    return;
+  }
+  int i, j;
+  struct Aluno temp;
+  for (i = 0; i < num_alunos - 1; i++) {
+    for (j = 0; j < num_alunos - i - 1; j++) {
+      if (alunos[j].faltas > alunos[j + 1].faltas) {
+        temp = alunos[j];
+        alunos[j] = alunos[j + 1];
+        alunos[j + 1] = temp;
+      }
+    }
+  }
+  printf("Lista de alunos ordenada por faltas com sucesso.\n");
+}
+
+void salvar_dados(void) {
+  FILE *arquivo;
+  arquivo = fopen("alunos.txt", "w");
+  if (arquivo == NULL) {
+    printf("O arquivo 'alunos'foi carregado!\n");
+    return;
+  }
+  for (int i = 0; i < num_alunos; i++) {
+    fprintf(arquivo, "%d,%s,%d,%.1f,%.1f,%.1f,%.1f,%d\n", alunos[i].matricula,
+            alunos[i].nome, alunos[i].turma, alunos[i].notas[0],
+            alunos[i].notas[1], alunos[i].notas[2], alunos[i].notas[3],
+            alunos[i].faltas);
+  }
+  fclose(arquivo);
+  printf("Dados salvos com sucesso.\n");
+}
+
+void carregar_dados(void) {
+  FILE *arq = fopen("alunos.txt", "r");
+
+  if (arq == NULL) {
+    printf("Nenhum aluno cadastrado ou erro ao abrir o arquivo 'aluno.txt'\n");
+    return;
+  }
+
+  int i = 0;
+  char buffer[100];
+  while (fgets(buffer, 100, arq) != NULL) {
+    sscanf(buffer, "%d %s %d %f %f %f %f %d", &alunos[i].matricula,
+           alunos[i].nome, &alunos[i].turma, &alunos[i].notas[0],
+           &alunos[i].notas[1], &alunos[i].notas[2], &alunos[i].notas[3],
+           &alunos[i].faltas);
+
+    num_alunos++;
+    i++;
+
+    if (i >= MAX_ALUNOS) {
+      break;
+    }
+  }
+
+  fclose(arq);
+
+  printf("%d alunos carregados com sucesso.\n", num_alunos);
+}
+
+void exibirMenu(void) {
+  int opcao;
+  do {
+    printf("\nSelecione uma opcao:\n");
+    printf("1 - Cadastrar aluno\n");
+    printf("2 - Remover aluno\n");
+    printf("3 - Atualizar dados de um aluno\n");
+    printf("4 - Listar alunos cadastrados\n");
+    printf("5 - Listar alunos aprovados\n");
+    printf("6 - Listar alunos reprovados por media\n");
+    printf("7 - Listar alunos reprovados por faltas\n");
+    printf("8 - Listar alunos por turma\n");
+    printf("9 - Listar alunos por matricula\n");
+    printf("10 - Listar alunos por nome\n");
+    printf("11 - Listar alunos por media\n");
+    printf("12 - Listar alunos por faltas\n");
+    printf("13 - Salvar dados\n");
+    printf("14 - Carregar dados\n");
+    printf("15- Sair\n");
+    printf("\n\nDigite alguma opção: \n");
+    scanf("%d", &opcao);
+    system("clear");
+    switch (opcao) {
+    case 1:
+      cadastrar_aluno();
+      salvar_dados();
+      break;
+    case 2:
+      remover_aluno();
+      salvar_dados();
+      break;
+    case 3:
+      atualizar_aluno();
+      salvar_dados();
+      break;
+    case 4:
+      listar_alunos();
+      salvar_dados();
+      break;
+    case 5:
+      listar_aprovados();
+      salvar_dados();
+      break;
+    case 6:
+      listar_reprovados_media();
+      salvar_dados();
+      break;
+    case 7:
+      listar_reprovados_faltas();
+      salvar_dados();
+      break;
+    case 8:
+      listar_por_turma();
+      salvar_dados();
+      break;
+    case 9:
+      ordenar_por_matricula();
+      salvar_dados();
+      break;
+    case 10:
+      ordenar_por_nome();
+      salvar_dados();
+      break;
+    case 11:
+      ordenar_por_media();
+      salvar_dados();
+      break;
+    case 12:
+      ordenar_por_faltas();
+      salvar_dados();
+      break;
+    case 13:
+      salvar_dados();
+      break;
+    case 14:
+      carregar_dados();
+      salvar_dados();
+      break;
+    case 15:
+      printf("Você escolheu sair!");
+      salvar_dados();
+      break;
+    default:
+      printf("Opção não existe, digite outra!");
+      break;
+    }
+  } while (opcao != 0);
+}
+
+int main() {
+  carregar_dados();
+  int opcao = -1;
+  while (opcao != 0) {
+    exibirMenu();
+    scanf("%d", &opcao);
+    switch (opcao) {
+    case 1:
+      cadastrar_aluno();
+      break;
+    case 2:
+      remover_aluno();
+      break;
+    }
+  }
+}
